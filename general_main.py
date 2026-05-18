@@ -26,6 +26,11 @@ async def lifespan(app: FastAPI):
     yield
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
+def ensure_rotation(img: np.ndarray) -> np.ndarray:
+    h, w = img.shape[:2]
+    if w > h:
+        img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+    return img
 
 def analyze_led_circuit_from_bytes(
     image_bytes: bytes, 
@@ -41,6 +46,7 @@ def analyze_led_circuit_from_bytes(
 
     if img is None:
         raise ValueError("It is not possible to decode the image.")
+    img = ensure_rotation(img)
 
     h_orig, w_orig = img.shape[:2]
     start_y = int(h_orig * crop_top)
